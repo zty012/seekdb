@@ -42,7 +42,9 @@ public:
 #ifndef NDEBUG
     extra_access_check();
 #endif
-    OB_ASSERT(idx >= 0 && idx < count_);
+    if (OB_UNLIKELY(idx < 0 || idx >= count_)) {
+      at_out_of_range(idx);
+    }
     return data_[idx];
   }
   inline T &at(int64_t idx)
@@ -50,7 +52,9 @@ public:
 #ifndef NDEBUG
     extra_access_check();
 #endif
-    OB_ASSERT(idx >= 0 && idx < count_);
+    if (OB_UNLIKELY(idx < 0 || idx >= count_)) {
+      at_out_of_range(idx);
+    }
     return data_[idx];
   }
   inline int64_t count() const { return count_; }
@@ -61,6 +65,14 @@ public:
 
   T *get_data() const { return data_; }
 protected:
+  // The report of an out of range access is kept out of line. The assertion
+  // pulls in the log and the backtrace, which makes at() too big to be
+  // inlined into the hot loops that access the arrays.
+  OB_NOINLINE void at_out_of_range(int64_t idx) const
+  {
+    OB_ASSERT(idx >= 0 && idx < count_);
+  }
+
   // Expose %data_ and %count_ here to make at(), count() be inlined,
   // derived class should set then appropriatly
   T *data_;

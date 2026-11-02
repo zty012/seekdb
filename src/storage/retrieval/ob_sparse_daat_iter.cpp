@@ -25,7 +25,7 @@ namespace storage
 
 ObSRMergeCmp::ObSRMergeCmp()
   : cmp_func_(nullptr),
-    iter_ids_(nullptr),
+    iter_id_ptrs_(nullptr),
     is_binary_str_id_(false),
     is_inited_(false)
 {
@@ -39,7 +39,7 @@ int ObSRMergeCmp::init(
   if (OB_ISNULL(iter_ids)) {
     ret = OB_ERR_UNEXPECTED;
   } else {
-    iter_ids_ = iter_ids;
+    iter_id_ptrs_ = iter_ids->get_data();
     is_binary_str_id_ = false;
     common::ObDatumBasicFuncs *basic_funcs = ObDatumFuncs::get_basic_func(id_meta.type_, id_meta.cs_type_);
     cmp_func_ = basic_funcs->null_first_cmp_;
